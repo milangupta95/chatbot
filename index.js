@@ -30,6 +30,7 @@ app.post('/whatsapp', async (req, res) => {
 
       // Process the extracted text or respond with it.
       twiml.message(`OCR Result: ${text}`);
+      console.log(text);
     } catch (error) {
       console.error('Error processing image:', error);
       twiml.message('An error occurred while processing the image.');
