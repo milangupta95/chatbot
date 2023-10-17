@@ -23,7 +23,6 @@ app.post('/webhook', async (req, res) => {
             console.log(url, 'saved to', filename)
         })
         Tesseract.recognize(filename)
-            .progress(function (p) { console.log('progress', p) })
             .catch(err => console.error(err))
             .then(function (result) {
                 console.log(result.text)
