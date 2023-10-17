@@ -17,18 +17,10 @@ app.post('/webhook', async (req, res) => {
 
     if (req.body.NumMedia > 0) {
         const url = req.body.MediaUrl0;
-        var writeFileStream = fs.createWriteStream(filename)
-
-        request(url).pipe(writeFileStream).on('close', function () {
-            console.log(url, 'saved to', filename)
-        })
-        Tesseract.recognize(filename)
-            .catch(err => console.error(err))
+        Tesseract.recognize(url)
             .then(function (result) {
-                console.log(result.text)
-                message.body(result.text);
-                process.exit(0)
-            })
+                console.log(result.text);
+            });
     } else {
         message.body('No image found.');
     }
