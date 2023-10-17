@@ -19,6 +19,7 @@ app.post('/webhook', async (req, res) => {
         const url = req.body.MediaUrl0;
         Tesseract.recognize(url)
             .then(function (result) {
+                message.body(result.text);
                 console.log(result.text);
             });
     } else {
