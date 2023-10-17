@@ -16,7 +16,7 @@ app.post('/webhook', async (req, res) => {
     const message = twiml.message();
 
     if (req.body.NumMedia > 0) {
-        const mediaUrl = req.body.MediaUrl0;
+        const url = req.body.MediaUrl0;
         var writeFileStream = fs.createWriteStream(filename)
 
         request(url).pipe(writeFileStream).on('close', function () {
