@@ -2,39 +2,38 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 const { createWorker } = require('tesseract.js');
+const fs = require('fs');
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// Initialize the Twilio client
-const accountSid = 'ACbc78c90f0241b895f9a24da9c662db20';
-const authToken = '3346c54df3d3b84b3e1e5a5e1e010e81';
-const client = require('twilio')(accountSid, authToken);
-
-app.post('/webhook', async (req, res) => {
+app.post('/whatsapp', async (req, res) => {
   const twiml = new MessagingResponse();
 
   if (req.body.NumMedia > 0 && req.body.MediaContentType0.startsWith('image/')) {
     const imageUrl = req.body.MediaUrl0;
 
-    // Use Tesseract.js to extract text from the image.
+    // Local path to the downloaded image (replace with your file path).
+    const localImagePath = 'image.jpg';
+
+    // Use Tesseract.js to extract text from the local image.
     const worker = createWorker();
-    await worker.load();
-    await worker.loadLanguage('eng');
-    await worker.initialize('eng');
-    const { data: { text } } = await worker.recognize(imageUrl);
-    await worker.terminate();
+    try {
+      await worker.load();
+      await worker.loadLanguage('eng');
+      await worker.initialize('eng');
 
-    // Send the extracted text as a WhatsApp response.
-    const responseMessage = `OCR Result: ${text}`;
-    twiml.message(responseMessage);
+      // Read the image from the local file.
+      const imageBuffer = fs.readFileSync(localImagePath);
+      const { data: { text } } = await worker.recognize(imageBuffer);
+      await worker.terminate();
 
-    // Send the response via WhatsApp
-    client.messages.create({
-      to: req.body.From,
-      from: req.body.To,
-      body: responseMessage,
-    });
+      // Process the extracted text or respond with it.
+      twiml.message(`OCR Result: ${text}`);
+    } catch (error) {
+      console.error('Error processing image:', error);
+      twiml.message('An error occurred while processing the image.');
+    }
   } else {
     twiml.message("Please send an image for OCR.");
   }
